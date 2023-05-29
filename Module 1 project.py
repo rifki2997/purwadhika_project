@@ -55,8 +55,9 @@ def menu_utama():
     1. menampilkan daftar pasien dan daftar dokter
     2. menambah data pasien
     3. menghapus index
-    4. transaksi pengobatan
-    5. exit
+    4. mengupdate index
+    5. transaksi pengobatan
+    6. exit
     
     Masukkan no pilihan: '''))
     if menu_database == 1:
@@ -66,25 +67,15 @@ def menu_utama():
     elif menu_database == 3:
        delete_data()
     elif menu_database == 4:
-       transaksi()
+       update()
     elif menu_database == 5:
+       transaksi()
+    elif menu_database == 6:
        print("\t\t Terima Kasih")
        quit()
     else:
        print('wrong, please enter number 1 - 5 to enter the program')
        return menu_utama()
-
-def data_pasien():
-    print("Daftar Pasien\n")
-    for j in range(len(daftar_pasien)):
-      print('{}. Name: {}\n Umur: {}\n Gender: {}\n Status: {}\n'.format(j+1, daftar_pasien[j]['nama'], daftar_pasien[j]['Umur'],
-                                           daftar_pasien[j]['kelamin'], daftar_pasien[j]['penyakit']))
-
-def data_pengobatan():
-    print("Daftar untuk pengobatan\n")
-    for j in range(len(daftar_pasien)):
-      print('{}. Pasien: {}, Status: {}, Dokter: {}, Rawat_Inap: {}'.format(j+1, daftar_pasien[j]['nama'], daftar_pasien[j]['penyakit'],
-                                           daftar_pasien[j]['dokter'], daftar_pasien[j]['rawat_inap']))
 
 
 def table():
@@ -94,7 +85,8 @@ def table():
                  daftar_pasien[i]['penyakit'],daftar_pasien[i]['dokter'],daftar_pasien[i]['rawat_inap'],
                  daftar_pasien[i]['stock_obat'],daftar_pasien[i]['harga']))
    d3 = tabulate(d2, headers='firstrow',tablefmt='grid')
-   print(d3)
+   #print(d3)
+   return d3
 
 def table2():
    d5 = [('Index','Nama', 'Penyakit', 'Dokter', 'Rawat Inap', 'Stock Obat', 'Harga')]
@@ -102,12 +94,12 @@ def table2():
       d5.append((i + 1,daftar_pasien[i]['nama'],daftar_pasien[i]['penyakit'],daftar_pasien[i]['dokter'],
                  daftar_pasien[i]['rawat_inap'],daftar_pasien[i]['stock_obat'],daftar_pasien[i]['harga']))
    d6 = tabulate(d5, headers='firstrow',tablefmt='grid')
-   print(d6)
+   return d6
 
 
 def backtomenu1():
    sudah = str(input("apakah sudah selesai melihat ( ketik yes): "))
-   if (sudah == "yes"): #and (sudah == "y"):
+   if (sudah == "yes"):
       tampilan_data()
    else:
       print("salah, ketik yes")
@@ -126,13 +118,11 @@ def tampilan_data():
 
    if menu_data == 1:
       print(table())
-      #print(data_pasien())
       backtomenu1()
    elif menu_data == 2:
       d1 = [('No','Nama', 'Penyakit', 'Dokter', 'Dirawat')]
       for i in range(len(daftar_pasien)):
          d1.append(( i+1,daftar_pasien[i]['nama'], daftar_pasien[i]['penyakit'], daftar_pasien[i]['dokter'], daftar_pasien[i]['rawat_inap']))
-         #print(tabulate(d1,headers='firstrow',tablefmt='grid'))
       table1 = tabulate(d1,headers='firstrow',tablefmt='grid')
       print(table1)
       backtomenu1()
@@ -164,14 +154,10 @@ def add_data():
       dokter = dokter1.capitalize()
    else:
       dokter = dokter1.capitalize()
-      status = str(input('Masukkan status penyakit: '))
+      status = str(input('Masukkan status penyakit(bahaya/tidak): '))
       status = status.lower()
       dirawat = str(input('Masukkan status apakah dirawat di ruang ICU (ya/tidak): '))
       dirawat = dirawat.lower()
-   #if (status == "bahaya") or (dirawat == "ya"):
-   #   stock = 
-   #status = str(input('Masukkan status penyakit: '))
-   #dirawat = str(input('Masukkan status apakah dirawat di ruang ICU (ya/tidak): '))
    stock = int(input('Masukkan stock obat: '))
    harga = int(input('Masukkan harga obat: '))
 
@@ -246,13 +232,25 @@ def bayar():
             for item in cart :
                     daftar_pasien[item['index']]['stock_obat'] -= item['qty']
             cart.clear()
-            break
+            done = str(input("kembali ke menu utama?(y/n): "))
+            if done == "y":
+               menu_utama()
+            elif done == "n":
+               bayar()
+            else:
+               return done
          elif(jmlUang == totalHarga) :
             print('Terima kasih')
             for item in cart :
                     daftar_pasien[item['index']]['stock_obat'] -= item['qty']
             cart.clear()
-            break
+            done = str(input("kembali ke menu utama?(y/n): "))
+            if done == "y":
+               menu_utama()
+            elif done == "n":
+               bayar()
+            else:
+               return done
          else :
             kekurangan = totalHarga - jmlUang
             print('Uang anda kurang sebesar {}'.format(kekurangan))
@@ -272,10 +270,83 @@ def transaksi():
             menu_utama()
          elif keadaan == "y":
             bayar()
+            menu_utama()
       elif tanya1 == "n":
          bayar()
+         menu_utama()
    while tanya=="n" and tanya1 == "n":
       menu_utama()
 
+def update():
+   print("Update data yang tersedia\n")
+   print("check data yang akan diubah \n")
+   d6 = [('Index','Nama', 'Kelamin', 'Umur', 'Penyakit', 'Dokter', 'Rawat Inap', 'Stock Obat', 'Harga')]
+
+   for i in range(len(daftar_pasien)):
+      d6.append((i + 1,daftar_pasien[i]['nama'],daftar_pasien[i]['kelamin'],daftar_pasien[i]['Umur'],
+                 daftar_pasien[i]['penyakit'],daftar_pasien[i]['dokter'],daftar_pasien[i]['rawat_inap'],
+                 daftar_pasien[i]['stock_obat'],daftar_pasien[i]['harga']))
+   rows = tabulate(d6,headers='firstrow',tablefmt='grid')
+   print('Daftar data pasien\n')
+   print(rows)
+   index_pasien = int(input('Masukkan index pasien yang ingin diupdate: '))
+
+   if index_pasien < 1 or index_pasien > len(rows):
+        print("Index pasien tidak valid.")
+   else:
+        pasien = daftar_pasien[index_pasien - 1]
+        print(f"\nData pasien dengan index {index_pasien}:")
+        for key, value in pasien.items():
+            print(f"{key}: {value}")
+
+        yg_diganti = input("Apakah sudah selesai melihat dan menentukan yang akan diganti? (ya/tidak): ")
+
+        if yg_diganti.lower() == "ya":
+            new_nama = input('Masukkan nama baru: ')
+            new_nama = new_nama.capitalize()
+            new_gender = input('Masukkan jenis kelamin baru (male/female): ')
+            if (new_gender == "male") or (new_gender == "female"):
+               new_gender = new_gender.capitalize()
+            else:
+               return update()
+            new_usia = int(input('Masukkan umur baru: '))
+            new_dokter = input('Masukkan nama dokter baru: ')
+            new_dokter1 = new_dokter.lower()
+            if (new_dokter1 == "kaltsit"):
+               new_status = "tidak"
+               new_dirawat = input('Masukkan status rawat inap baru (Ya/Tidak): ')
+               new_dirawat = new_dirawat.lower()
+               new_dokter = new_dokter1.capitalize()
+            elif (new_dokter1 == "budi"):
+               new_status = str(input('Masukkan status penyakit(bahaya/tidak): '))
+               new_status = new_status.lower()
+               new_dirawat = "ya"
+               new_dokter = new_dokter1.capitalize()
+            else:
+               new_dokter = new_dokter1.capitalize()
+               new_status = str(input('Masukkan status penyakit(bahaya/tidak): '))
+               new_status = new_status.lower()
+               new_dirawat = str(input('Masukkan status apakah dirawat di ruang ICU (ya/tidak): '))
+               new_dirawat = new_dirawat.lower()
+            new_stock_obat = int(input('Masukkan stok obat baru: '))
+            new_harga = int(input('Masukkan harga baru: '))
+
+            pasien['nama'] = new_nama
+            pasien['kelamin'] = new_gender
+            pasien['Umur'] = new_usia
+            pasien['penyakit'] = new_status
+            pasien['dokter'] = new_dokter
+            pasien['rawat_inap'] = new_dirawat
+            pasien['stock_obat'] = new_stock_obat
+            pasien['harga'] = new_harga
+
+            print("\nData pasien setelah diupdate:")
+            for key, value in pasien.items():
+                print(f"{key}: {value}")
+            #print(table())
+            #menu_utama()
+            backtomenu1()
+        else:
+            print("Pengubahan data dibatalkan.")
 
 menu_utama()
