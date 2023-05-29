@@ -46,7 +46,7 @@ daftar_pasien = [
     }
 ]
 
-def menu_utama():
+def menu_utama(): #menampilkan menu utama
     print("\t Welcome to Database")
     menu_database = int(input('''
      Selamat Datang
@@ -78,7 +78,7 @@ def menu_utama():
        return menu_utama()
 
 
-def table():
+def table(): #membuat data list yang mempunyai dictionary di dalamnya menjadi bentuk tabel dengan tabulate
    d2 = [('Index','Nama', 'Kelamin', 'Umur', 'Penyakit', 'Dokter', 'Rawat Inap', 'Stock Obat', 'Harga')]
    for i in range(len(daftar_pasien)):
       d2.append((i + 1,daftar_pasien[i]['nama'],daftar_pasien[i]['kelamin'],daftar_pasien[i]['Umur'],
@@ -106,6 +106,14 @@ def backtomenu1():
       return backtomenu1()
    menu_utama()
 
+def backtomenu():
+   sudah = str(input("apakah sudah selesai melihat ( ketik yes): "))
+   if (sudah == "yes"):
+      menu_utama()
+   else:
+      print("salah, ketik yes")
+      return backtomenu()
+   menu_utama()
 
 def tampilan_data():
    print("Menampilkan Data Pasien")
@@ -132,15 +140,15 @@ def tampilan_data():
       print("salah nomor, pilih no 1 dan 2 untuk melihat data, 3 untuk kembali ke menu utama")
 
 
-def add_data():
-   print("masukkan data data yang akan dimasukkan ke 2 kategori")
+def add_data(): #menambah data
+   print("masukkan data data yang akan diinputkan ke tabel")
    namapasien = str(input('Masukkan nama pasien: '))
    namapasien = namapasien.capitalize()
    gender = str(input('Masukkan gender pasien (male / female): '))
    if (gender == "male") or (gender == "female"):
       gender = gender.capitalize()
    else:
-      return gender
+      return add_data()
    usia = int(input('Masukkan usia pasien: '))
    dokter = str(input('Masukkan nama dokter: '))
    dokter1 = dokter.lower()
@@ -156,10 +164,26 @@ def add_data():
       dokter = dokter1.capitalize()
       status = str(input('Masukkan status penyakit(bahaya/tidak): '))
       status = status.lower()
+      if (status == "bahaya") or (status == "tidak"):
+            status = status.capitalize()
+      else:
+         return add_data()
       dirawat = str(input('Masukkan status apakah dirawat di ruang ICU (ya/tidak): '))
       dirawat = dirawat.lower()
+      if (dirawat == "bahaya") or (dirawat == "tidak"):
+            dirawat = dirawat.capitalize()
+      else:
+            return add_data()
    stock = int(input('Masukkan stock obat: '))
+   if (0 < stock < 10000000000):
+      stock = stock
+   else:
+      return add_data()
    harga = int(input('Masukkan harga obat: '))
+   if (0 < harga < 10000000000):
+      harga = harga
+   else:
+      return add_data()
 
    daftar_pasien.append({
       'nama': namapasien,
@@ -193,14 +217,12 @@ def delete_data():
       print(deleted_pasien)
       print("Data pasien setelah penghapusan:")
       print(table())
-      menu_utama()
+      backtomenu()
 
 def bayar():
    cart = []
    print('Daftar Obat\n')
-   print('Index\t| Nama  \t| Stock\t| Harga')
-   for i in range(len(daftar_pasien)) :
-      print('{}\t| {}  \t| {}\t| {}'.format(i,daftar_pasien[i]['nama'],daftar_pasien[i]['stock_obat'],daftar_pasien[i]['harga']))
+   print(table2())
    while True :
       index1 = int(input('Masukkan index pasien yang ingin transaksi: '))
       qtyobat = int(input('Masukkan jumlah obat yang ingin dibeli : '))
@@ -267,86 +289,152 @@ def transaksi():
          keadaan = str(input('apakah pasien sudah sembuh?[y/n]:'))
          if keadaan == "n":
             print("pembayaran dapat dilakukan setelah pasien dinyatakan sembuh")
-            menu_utama()
+            backtomenu()
          elif keadaan == "y":
             bayar()
-            menu_utama()
       elif tanya1 == "n":
          bayar()
-         menu_utama()
+         backtomenu()
    while tanya=="n" and tanya1 == "n":
-      menu_utama()
+      backtomenu()
+
+
+def update_data_pasien(daftar_pasien, index, key, value):
+    if index >= 0 and index < len(daftar_pasien):
+        daftar_pasien[index][key] = value
+        return True
+    else:
+        return False
+
 
 def update():
    print("Update data yang tersedia\n")
    print("check data yang akan diubah \n")
-   d6 = [('Index','Nama', 'Kelamin', 'Umur', 'Penyakit', 'Dokter', 'Rawat Inap', 'Stock Obat', 'Harga')]
-
-   for i in range(len(daftar_pasien)):
-      d6.append((i + 1,daftar_pasien[i]['nama'],daftar_pasien[i]['kelamin'],daftar_pasien[i]['Umur'],
-                 daftar_pasien[i]['penyakit'],daftar_pasien[i]['dokter'],daftar_pasien[i]['rawat_inap'],
-                 daftar_pasien[i]['stock_obat'],daftar_pasien[i]['harga']))
-   rows = tabulate(d6,headers='firstrow',tablefmt='grid')
-   print('Daftar data pasien\n')
-   print(rows)
-   index_pasien = int(input('Masukkan index pasien yang ingin diupdate: '))
+   print(table())
+   rows = table()
+   print("kata kunci untuk update: nama, ")
+   index_pasien = int(input('Masukkan index pasien yang ingin diganti: '))
 
    if index_pasien < 1 or index_pasien > len(rows):
-        print("Index pasien tidak valid.")
+        print("Index pasien tidak valid, check tabel.")
+        return update()
    else:
-        pasien = daftar_pasien[index_pasien - 1]
-        print(f"\nData pasien dengan index {index_pasien}:")
-        for key, value in pasien.items():
-            print(f"{key}: {value}")
-
-        yg_diganti = input("Apakah sudah selesai melihat dan menentukan yang akan diganti? (ya/tidak): ")
-
-        if yg_diganti.lower() == "ya":
-            new_nama = input('Masukkan nama baru: ')
-            new_nama = new_nama.capitalize()
-            new_gender = input('Masukkan jenis kelamin baru (male/female): ')
-            if (new_gender == "male") or (new_gender == "female"):
-               new_gender = new_gender.capitalize()
-            else:
-               return update()
-            new_usia = int(input('Masukkan umur baru: '))
-            new_dokter = input('Masukkan nama dokter baru: ')
-            new_dokter1 = new_dokter.lower()
-            if (new_dokter1 == "kaltsit"):
-               new_status = "tidak"
-               new_dirawat = input('Masukkan status rawat inap baru (Ya/Tidak): ')
-               new_dirawat = new_dirawat.lower()
-               new_dokter = new_dokter1.capitalize()
-            elif (new_dokter1 == "budi"):
-               new_status = str(input('Masukkan status penyakit(bahaya/tidak): '))
-               new_status = new_status.lower()
-               new_dirawat = "ya"
-               new_dokter = new_dokter1.capitalize()
-            else:
-               new_dokter = new_dokter1.capitalize()
-               new_status = str(input('Masukkan status penyakit(bahaya/tidak): '))
-               new_status = new_status.lower()
-               new_dirawat = str(input('Masukkan status apakah dirawat di ruang ICU (ya/tidak): '))
-               new_dirawat = new_dirawat.lower()
-            new_stock_obat = int(input('Masukkan stok obat baru: '))
-            new_harga = int(input('Masukkan harga baru: '))
-
-            pasien['nama'] = new_nama
-            pasien['kelamin'] = new_gender
-            pasien['Umur'] = new_usia
-            pasien['penyakit'] = new_status
-            pasien['dokter'] = new_dokter
-            pasien['rawat_inap'] = new_dirawat
-            pasien['stock_obat'] = new_stock_obat
-            pasien['harga'] = new_harga
-
-            print("\nData pasien setelah diupdate:")
-            for key, value in pasien.items():
-                print(f"{key}: {value}")
-            #print(table())
-            #menu_utama()
-            backtomenu1()
-        else:
-            print("Pengubahan data dibatalkan.")
-
+      yg_diganti = str(input("yang akan diganti: "))
+      if (yg_diganti == "nama"):
+         new_nama = str(input('Masukkan nama baru: '))
+         new_nama = new_nama.capitalize()
+         success = update_data_pasien(daftar_pasien, index_pasien - 1,'nama',new_nama) 
+         if success:
+            print(f"Data pasien dengan index {index_pasien} berhasil diperbarui:")
+            print(table())  
+            backtomenu()
+         else:
+            print("Gagal memperbarui data pasien.")
+            return update()
+      elif (yg_diganti == "Umur"):
+         new_usia = int(input('Masukkan usia baru: '))
+         success = update_data_pasien(daftar_pasien, index_pasien - 1,'Umur',new_usia) 
+         if success:
+            print(f"Data pasien dengan index {index_pasien} berhasil diperbarui:")
+            print(table())  
+            backtomenu()
+         else:
+            print("Gagal memperbarui data pasien.")
+            return update()
+      elif (yg_diganti == "stock"):
+         new_stock_obat = int(input('Masukkan stock obat yang baru: '))
+         if (0 < new_stock_obat < 10000000000):
+            new_stock_obat = new_stock_obat
+         else:
+            return update()
+         success = update_data_pasien(daftar_pasien, index_pasien - 1,'stock_obat',new_stock_obat) 
+         if success:
+            print(f"Data pasien dengan index {index_pasien} berhasil diperbarui:")
+            print(table())
+            backtomenu()
+      elif (yg_diganti == "harga"):
+         new_harga = int(input('Masukkan harga obat yang baru: '))
+         if (0 < new_harga < 10000000000):
+            new_harga = new_harga
+         else:
+            return add_data()
+         success = update_data_pasien(daftar_pasien, index_pasien - 1,'stock_obat',new_harga) 
+         if success:
+            print(f"Data pasien dengan index {index_pasien} berhasil diperbarui:")
+            print(table())
+            backtomenu()
+         else:
+            print("Gagal memperbarui data pasien.")
+            return update()
+      elif (yg_diganti == "kelamin"):
+         new_kelamin = input('Masukkan gender baru(male/female): ')
+         new_kelamin = new_kelamin.capitalize()
+         success = update_data_pasien(daftar_pasien, index_pasien - 1,'kelamin',new_kelamin) 
+         if success:
+            print(f"Data pasien dengan index {index_pasien} berhasil diperbarui:")
+            print(table()) 
+            backtomenu()
+         else:
+            print("Gagal memperbarui data pasien.")
+            return update()
+      elif (yg_diganti == "kelamin"):
+         new_kelamin = input('Masukkan gender baru(male/female): ')
+         new_kelamin = new_kelamin.capitalize()
+         if (new_gender == "male") or (new_gender == "female"):
+            new_gender = new_gender.capitalize()
+         else:
+            return update()
+         success = update_data_pasien(daftar_pasien, index_pasien - 1,'kelamin',new_kelamin) 
+         if success:
+            print(f"Data pasien dengan index {index_pasien} berhasil diperbarui:")
+            print(table())  
+            backtomenu()
+         else:
+            print("Gagal memperbarui data pasien.")
+            return update()
+      elif (yg_diganti == "dokter"):
+         new_dokter = input('Masukkan nama dokter: ')
+         new_dokter = new_dokter.capitalize()
+         success = update_data_pasien(daftar_pasien, index_pasien - 1,'dokter',new_dokter) 
+         if success:
+            print(f"Data pasien dengan index {index_pasien} berhasil diperbarui:")
+            print(table())  
+            backtomenu()
+         else:
+            print("Gagal memperbarui data pasien.")
+            return update()
+      elif (yg_diganti == "penyakit"):
+         new_penyakit = input('Masukkan status penyakit (bahaya/tidak): ')
+         new_penyakit = new_penyakit.lower()
+         if (new_penyakit == "bahaya") or (new_penyakit == "tidak"):
+            new_penyakit = new_penyakit.capitalize()
+         else:
+            return update()
+         success = update_data_pasien(daftar_pasien, index_pasien - 1,'penyakit',new_penyakit) 
+         if success:
+            print(f"Data pasien dengan index {index_pasien} berhasil diperbarui:")
+            print(table())  
+            backtomenu()
+         else:
+            print("Gagal memperbarui data pasien.")
+            return update()
+      elif (yg_diganti == "rawat "):
+         new_rawat_inap = input('Masukkan status penyakit (bahaya/tidak): ')
+         new_rawat_inap = new_rawat_inap.lower()
+         if (new_rawat_inap == "bahaya") or (new_rawat_inap == "tidak"):
+            new_rawat_inap = new_rawat_inap.capitalize()
+         else:
+            return update()
+         success = update_data_pasien(daftar_pasien, index_pasien - 1,'rawat_inap',new_rawat_inap) 
+         if success:
+            print(f"Data pasien dengan index {index_pasien} berhasil diperbarui:")
+            print(table())  
+            backtomenu()
+         else:
+            print("Gagal memperbarui data pasien.")
+            return update()   
+      else:
+            print("Data yang ingin diganti tidak valid (pilih).")
+            return update()
+        
 menu_utama()
