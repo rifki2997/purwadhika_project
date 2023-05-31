@@ -246,7 +246,7 @@ def bayar():
          index1 = index1 - 1
          if(qtyobat > daftar_pasien[index1]['stock_obat']) :
             print('Stock tidak cukup, pasien {} obat ini tinggal {}'.format(daftar_pasien[index1]['nama'],daftar_pasien[index1]['stock_obat']))
-         elif (qtyobat == daftar_pasien[index1]['stock_obat']):
+         elif (qtyobat <= daftar_pasien[index1]['stock_obat']):
             cart.append({
                'nama': daftar_pasien[index1]['nama'], 
                'qty': qtyobat, 
@@ -315,6 +315,7 @@ def transaksi():
                backtomenu()
             elif keadaan == "y":
                bayar()
+               backtomenu()
          elif tanya1 == "n":
             bayar()
             backtomenu()
